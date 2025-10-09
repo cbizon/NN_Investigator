@@ -7,8 +7,20 @@ A web application that helps users investigate why a pair of nodes does or does 
 ## Basic Setup
 
 * github: This project has a github repo at https://github.com/cbizon/NN_investigator
-* uv: we are using uv for package and environment management
+* uv: we are using uv for package and environment management with an ISOLATED VIRTUAL ENVIRONMENT
 * tests: we are using pytest, and want to maintain high code coverage
+
+### Environment Management - CRITICAL
+
+**NEVER EVER INSTALL ANYTHING INTO SYSTEM LIBRARIES OR ANACONDA BASE ENVIRONMENT**
+
+- ALWAYS use the isolated virtual environment at `.venv/`
+- ALWAYS use `uv run` to execute commands, which automatically uses the isolated environment
+- NEVER run `uv pip install` directly - it may pollute system packages
+- If you need to install packages: `uv pip install --python .venv/bin/python <package>` OR just use `uv add <package>`
+- To run the app: `uv run python -m src.nn_investigator.app`
+- To run tests: `uv run pytest`
+- The virtual environment is sacred. System packages are not your garbage dump.
 
 ## Key Dependencies
 

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Entity Pairs - NN Investigator{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 style="margin: 0;">Entity Pairs</h1>
+    <a href="{{ url_for('export_markdown') }}" class="btn">Export to Markdown</a>
+</div>
+
+<p>Click on any pair to investigate why they do or don't normalize to the same clique.</p>
+
+<table>
+    <colgroup>
+        <col style="width: 15%;">
+        <col style="width: 12%;">
+        <col style="width: 18%;">
+        <col style="width: 12%;">
+        <col style="width: 18%;">
+        <col style="width: 15%;">
+        <col style="width: 10%;">
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Entity Name</th>
+            <th>CURIE 1</th>
+            <th>Label 1</th>
+            <th>CURIE 2</th>
+            <th>Label 2</th>
+            <th>Evaluation</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pair in pairs %}
+        <tr>
+            <td><strong>{{ pair.entity_name }}</strong></td>
+            <td class="curie-link"><code>{{ pair.curie_1 }}</code></td>
+            <td>{{ pair.curie_1_label or '—' }}</td>
+            <td class="curie-link"><code>{{ pair.curie_2 }}</code></td>
+            <td>{{ pair.curie_2_label or '—' }}</td>
+            <td>{{ pair.evaluation or '—' }}</td>
+            <td>
+                <a href="{{ url_for('investigate_pair', pair_id=pair.id) }}" class="btn btn-small">Investigate</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" style="text-align: center; padding: 40px;">
+                No entity pairs found. <a href="{{ url_for('add_pair') }}">Add one?</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p style="margin-top: 20px; color: #6c757d; font-size: 14px;">
+    Total: {{ pairs|length }} pair{{ 's' if pairs|length != 1 else '' }}
+</p>
+{% endblock %}

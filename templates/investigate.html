@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pair.entity_name }} - NN Investigator{% endblock %}
+
+{% block content %}
+<h1>{{ pair.entity_name }}</h1>
+
+{% if same_clique %}
+<div class="flash success">
+    <strong>✓ Same Clique:</strong> Both CURIEs normalize to the same preferred identifier.
+</div>
+{% else %}
+<div class="flash error">
+    <strong>✗ Different Cliques:</strong> These CURIEs normalize to different preferred identifiers.
+    {% if different_types_cell_chemical %}
+    <br><strong>⚠ Different Types Detected:</strong> One is a Cell type and the other is a ChemicalEntity type.
+    {% endif %}
+</div>
+{% endif %}
+
+<h2>Original Pair</h2>
+<table>
+    <tr>
+        <th>CURIE 1</th>
+        <td><code>{{ pair.curie_1 }}</code></td>
+        <td>{{ pair.curie_1_label or '—' }}</td>
+    </tr>
+    <tr>
+        <th>CURIE 2</th>
+        <td><code>{{ pair.curie_2 }}</code></td>
+        <td>{{ pair.curie_2_label or '—' }}</td>
+    </tr>
+</table>
+
+{% if pair.notes %}
+<p><strong>Notes:</strong> {{ pair.notes }}</p>
+{% endif %}
+
+<h2>Normalization Results</h2>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+    <!-- CURIE 1 Results -->
+    <div>
+        <h3>{{ pair.curie_1 }}</h3>
+        {% if curie_1_data %}
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                <p><strong>Preferred ID:</strong>
+                    <a href="{{ get_curie_url(curie_1_data.id.identifier) }}"
+                       target="_blank" class="curie-link">
+                        <code>{{ curie_1_data.id.identifier }}</code>
+                    </a>
+                </p>
+                <p><strong>Label:</strong> {{ curie_1_data.id.label or '—' }}</p>
+                <p><strong>Type:</strong> <code>{{ curie_1_data.type[0] if curie_1_data.type else '—' }}</code></p>
+            </div>
+
+            <h4>Equivalent Identifiers ({{ curie_1_data.equivalent_identifiers|length }})</h4>
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
+                <table style="margin: 0;">
+                    <thead style="position: sticky; top: 0; background: white;">
+                        <tr>
+                            <th>Identifier</th>
+                            <th>Label</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for equiv in curie_1_data.equivalent_identifiers %}
+                        <tr>
+                            <td>
+                                <a href="{{ get_curie_url(equiv.identifier) }}"
+                                   target="_blank" class="curie-link">
+                                    <code>{{ equiv.identifier }}</code>
+                                </a>
+                            </td>
+                            <td>{{ equiv.label or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: #e74c3c;">No normalization data found for this CURIE.</p>
+        {% endif %}
+    </div>
+
+    <!-- CURIE 2 Results -->
+    <div>
+        <h3>{{ pair.curie_2 }}</h3>
+        {% if curie_2_data %}
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                <p><strong>Preferred ID:</strong>
+                    <a href="{{ get_curie_url(curie_2_data.id.identifier) }}"
+                       target="_blank" class="curie-link">
+                        <code>{{ curie_2_data.id.identifier }}</code>
+                    </a>
+                </p>
+                <p><strong>Label:</strong> {{ curie_2_data.id.label or '—' }}</p>
+                <p><strong>Type:</strong> <code>{{ curie_2_data.type[0] if curie_2_data.type else '—' }}</code></p>
+            </div>
+
+            <h4>Equivalent Identifiers ({{ curie_2_data.equivalent_identifiers|length }})</h4>
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
+                <table style="margin: 0;">
+                    <thead style="position: sticky; top: 0; background: white;">
+                        <tr>
+                            <th>Identifier</th>
+                            <th>Label</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for equiv in curie_2_data.equivalent_identifiers %}
+                        <tr>
+                            <td>
+                                <a href="{{ get_curie_url(equiv.identifier) }}"
+                                   target="_blank" class="curie-link">
+                                    <code>{{ equiv.identifier }}</code>
+                                </a>
+                            </td>
+                            <td>{{ equiv.label or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: #e74c3c;">No normalization data found for this CURIE.</p>
+        {% endif %}
+    </div>
+</div>
+
+<h2 style="margin-top: 40px;">Evaluation</h2>
+
+{% if pair.evaluation %}
+<div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+    <p><strong>Current Evaluation:</strong> {{ pair.evaluation }}</p>
+    {% if pair.evaluation_notes %}
+    <p><strong>Notes:</strong> {{ pair.evaluation_notes }}</p>
+    {% endif %}
+</div>
+{% endif %}
+
+<form method="POST" style="max-width: 600px;">
+    <div class="form-group">
+        <label for="evaluation">Assessment *</label>
+        <select id="evaluation" name="evaluation" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+            <option value="">-- Select Assessment --</option>
+            <option value="Should merge" {% if pair.evaluation == "Should merge" %}selected{% endif %}>Should merge</option>
+            <option value="Should not merge" {% if pair.evaluation == "Should not merge" %}selected{% endif %}>Should not merge</option>
+            <option value="Should not merge, different salt" {% if pair.evaluation == "Should not merge, different salt" %}selected{% endif %}>Should not merge, different salt</option>
+            <option value="Different types (cell/chemical)" {% if pair.evaluation == "Different types (cell/chemical)" %}selected{% endif %}>Different types (cell/chemical)</option>
+            <option value="Different types (chemical/protein)" {% if pair.evaluation == "Different types (chemical/protein)" %}selected{% endif %}>Different types (chemical/protein)</option>
+            <option value="Different species" {% if pair.evaluation == "Different species" %}selected{% endif %}>Different species</option>
+            <option value="Dangling CHEMBL" {% if pair.evaluation == "Dangling CHEMBL" %}selected{% endif %}>Dangling CHEMBL</option>
+            <option value="Requires further investigation" {% if pair.evaluation == "Requires further investigation" %}selected{% endif %}>Requires further investigation</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="evaluation_notes">Evaluation Notes</label>
+        <textarea id="evaluation_notes" name="evaluation_notes" placeholder="Optional notes about your assessment">{{ pair.evaluation_notes or '' }}</textarea>
+    </div>
+
+    <button type="submit" class="btn">Save Evaluation</button>
+</form>
+
+<div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <a href="{{ url_for('index') }}" class="btn">← Back to List</a>
+    </div>
+    <div>
+        {% if prev_id %}
+        <a href="{{ url_for('investigate_pair', pair_id=prev_id) }}" class="btn">← Previous</a>
+        {% else %}
+        <span class="btn" style="opacity: 0.3; cursor: not-allowed;">← Previous</span>
+        {% endif %}
+
+        {% if next_id %}
+        <a href="{{ url_for('investigate_pair', pair_id=next_id) }}" class="btn" style="margin-left: 10px;">Next →</a>
+        {% else %}
+        <span class="btn" style="opacity: 0.3; cursor: not-allowed; margin-left: 10px;">Next →</span>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

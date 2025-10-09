@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Add Entity Pair - NN Investigator{% endblock %}
+
+{% block content %}
+<h1>Add Entity Pair</h1>
+
+<form method="POST">
+    <div class="form-group">
+        <label for="entity_name">Entity Name *</label>
+        <input type="text" id="entity_name" name="entity_name" required>
+    </div>
+
+    <div class="form-group">
+        <label for="curie_1">CURIE 1 *</label>
+        <input type="text" id="curie_1" name="curie_1" placeholder="e.g., CHEBI:15377" required>
+    </div>
+
+    <div class="form-group">
+        <label for="curie_1_label">CURIE 1 Label</label>
+        <input type="text" id="curie_1_label" name="curie_1_label">
+    </div>
+
+    <div class="form-group">
+        <label for="curie_2">CURIE 2 *</label>
+        <input type="text" id="curie_2" name="curie_2" placeholder="e.g., MESH:D014867" required>
+    </div>
+
+    <div class="form-group">
+        <label for="curie_2_label">CURIE 2 Label</label>
+        <input type="text" id="curie_2_label" name="curie_2_label">
+    </div>
+
+    <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" placeholder="Optional notes about this pair"></textarea>
+    </div>
+
+    <button type="submit" class="btn">Add Pair</button>
+    <a href="{{ url_for('index') }}" style="margin-left: 10px;">Cancel</a>
+</form>
+{% endblock %}
