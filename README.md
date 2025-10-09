@@ -1,121 +1,72 @@
 # NN_Investigator
 
-A web application for investigating why pairs of nodes do or do not merge into a node normalization clique.
+A web application for investigating why pairs of biomedical entities do or do not merge into node normalization cliques.
 
-## Overview
-
-NN_Investigator helps users analyze entity pairs that should theoretically normalize to the same concept but don't according to Node Normalization services. The application provides a visual interface to:
-
-- View a list of entity pairs that may or may not merge
-- Investigate individual pairs to see their normalization results
-- Compare equivalent identifiers between two CURIEs
-- Add new pairs for investigation
-
-## Installation
-
-This project uses [uv](https://github.com/astral-sh/uv) for package and environment management.
+## Quick Start
 
 ```bash
-# Create virtual environment
-uv venv
-
-# Install dependencies
-uv pip install -e ".[dev]"
+# Run the application (database already included)
+uv run python -m src.nn_investigator.app
 ```
 
-## Usage
+Open http://localhost:5000 in your browser.
 
-### Load Initial Data
+## How to Use
 
-Load the initial set of entity pairs from [GitHub issue #335](https://github.com/NCATSTranslator/NodeNormalization/issues/335):
+### 1. View Entity Pairs
+The landing page shows all 30 entity pairs from [GitHub issue #335](https://github.com/NCATSTranslator/NodeNormalization/issues/335). Each row shows:
+- Entity name
+- Two CURIEs that should potentially normalize together
+- Current evaluation status
+
+Click **Investigate** to analyze any pair.
+
+### 2. Investigate a Pair
+The investigation page shows:
+- Whether the CURIEs normalize to the same clique (✓ or ✗)
+- Auto-detection of type mismatches (e.g., Cell vs Chemical)
+- Preferred IDs for each CURIE
+- All equivalent identifiers with clickable linkouts to external resources
+
+**Navigation**: Use **Previous/Next** buttons to move between pairs sequentially.
+
+### 3. Evaluate Pairs
+At the bottom of each investigation page:
+1. Select an assessment from the dropdown:
+   - Should merge
+   - Should not merge
+   - Should not merge, different salt
+   - Different types (cell/chemical)
+   - Different types (chemical/protein)
+   - Different species
+   - Dangling CHEMBL
+   - Requires further investigation
+
+2. Add evaluation notes (optional)
+3. Click **Save Evaluation**
+
+Your evaluation appears in the main table and can be exported.
+
+### 4. Export Results
+Click **Export to Markdown** on the landing page to download a markdown table of all evaluations. Perfect for pasting into GitHub comments.
+
+### 5. Add New Pairs
+Click **Add Pair** in the navigation to investigate additional entity pairs.
+
+## Installation (for development)
 
 ```bash
-python load_initial_data.py
+# Install dependencies in isolated environment
+uv pip install --python .venv/bin/python -e ".[dev]"
+
+# Run tests
+uv run pytest tests/unit/
 ```
 
-### Run the Application
+## About
 
-```bash
-python -m src.nn_investigator.app
-```
-
-Then open http://localhost:5000 in your browser.
-
-### Run Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run unit tests only
-pytest tests/unit/
-
-# Run with coverage
-pytest --cov=src --cov-report=term-missing
-```
-
-## Project Structure
-
-```
-NN_investigator/
-├── src/nn_investigator/
-│   ├── __init__.py
-│   ├── app.py              # Flask application
-│   ├── database.py         # Database operations
-│   ├── nodenorm.py         # Node Normalization API client
-│   └── nameres.py          # Name Resolution API client
-├── templates/
-│   ├── base.html           # Base template
-│   ├── index.html          # Landing page
-│   ├── investigate.html    # Investigation page
-│   └── add_pair.html       # Add pair form
-├── tests/
-│   ├── unit/               # Unit tests
-│   └── integration/        # Integration tests with real APIs
-├── load_initial_data.py    # Script to load initial pairs
-└── pyproject.toml          # Project configuration
-```
-
-## APIs
-
-The application uses two key APIs:
-
-- **Node Normalization**: Converts CURIEs to their preferred identifiers and finds equivalent identifiers
-- **Name Resolution**: Maps between entity names and CURIEs, provides synonyms
-
-See documentation in `docs/` for more details.
-
-## Features
-
-- **Landing Page**: Browse all entity pairs in a table
-- **Investigation Page**: For each pair:
-  - Shows normalization results from Node Normalization API
-  - Displays preferred IDs and labels
-  - Lists all equivalent identifiers
-  - Indicates whether the pair merges into the same clique
-  - Provides clickable CURIE links
-- **Add Pairs**: Users can add new entity pairs to investigate
-- **Delete Pairs**: Remove pairs from the database
-
-## Normalization
-
-The application uses Node Normalization with both types of conflation enabled:
-
+This tool uses Node Normalization API with both conflation types enabled:
 - **Gene/Protein conflation**: Merges genes with their protein products
 - **Chemical/Drug conflation**: Merges drug formulations with active ingredients
 
-## Development
-
-### Running in Debug Mode
-
-The Flask app runs with `debug=True` by default when executed directly:
-
-```bash
-python -m src.nn_investigator.app
-```
-
-### Database
-
-The application uses SQLite3 for storing entity pairs. The database file is `nn_investigator.db` (ignored by git).
-
-To reset the database, simply delete the file and run `load_initial_data.py` again.
+The database (`nn_investigator.db`) contains 30 entity pairs from [NodeNormalization issue #335](https://github.com/NCATSTranslator/NodeNormalization/issues/335) where entities that should theoretically be the same are not merging into the same normalization clique.
