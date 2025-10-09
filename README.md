@@ -4,8 +4,13 @@ A web application for investigating why pairs of biomedical entities do or do no
 
 ## Quick Start
 
+**Prerequisites**: Install [uv](https://github.com/astral-sh/uv) if you haven't already:
 ```bash
-# Run the application (database already included)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Run the application** (uv handles environment and dependencies automatically):
+```bash
 uv run python -m src.nn_investigator.app
 ```
 
